@@ -1,0 +1,282 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <title>Weather Application</title>
+</head>
+
+<body style="background-image: url('{% static 'images/weather_background.avif' %}')"
+    class="bg-center bg-cover bg-no-repeat min-h-screen flex flex-col gap-5 items-center p-10">
+    <!-- App title -->
+    <div class="w-fit flex items-center">
+        <h1 class="text-2xl font-bold text-white">WeatherWise</h1>
+        <img src="{% static 'images/116.png' %}" alt="App icon" class="w-14 h-14">
+    </div>
+
+
+    <!-------------------------------------------------------------- search bar------------------------------------------------------------------- -->
+
+    <form action="" class="flex gap-2 w-4/5 md:w-3/5 lg:w-[35%] items-center justify-center">
+        <input type="text" placeholder="Enter a city" name="city" required
+            class="py-2 px-3 w-full rounded-full bg-white text-white text-lg outline ease-in-out duration-500 outline-2 outline:white/70 backdrop-blur-lg focus:bg-white/20">
+        <button type="submit">
+            <ion-icon name="search-outline"
+                class="font-black rounded-full bg-white/50 text-white p-3 text-2xl cursor-pointer"></ion-icon>
+        </button>
+        <button type="button" id="mic-btn">
+            <ion-icon name="mic-outline"
+                class="font-black rounded-full bg-white/50 text-white p-3 text-2xl cursor-pointer"></ion-icon>
+        </button>
+
+    </form>
+    <!-------------------------------------------------------------- End of search bar------------------------------------------------------------------- -->
+
+
+
+    <!-------------------------------------------------------------- city card------------------------------------------------------------------- -->
+
+    <div
+        class=" flex p-5 w-4/5 bg-white/20 justify-between rounded-3xl backdrop-blur-sm text-white shadow-2xl cursor-pointer ease-in-out duration-500 hover:scale-[105%] md:w-3/5 lg:w-[35%]">
+        <div id="left" class="flex flex-col">
+            <div id="top" class="mb-6 ">
+                <p class="font-bold text-5xl text-white">{{temperature}}°C</p>
+                <p class="font-semibold">Now</p>
+            </div>
+            <div class="font-semibold text-xl">
+                <p>{{city}}, {{country}}</p>
+            </div>
+        </div>
+        <div id="right" class="flex justify-center items-center">
+            <img src="{% static 'images/113.png' %}" alt="weather icon" class="w-28 h-28">
+        </div>
+    </div>
+
+    <!-------------------------------------------------------------- End of city card------------------------------------------------------------------- -->
+
+
+    <!--------------------------------------------------------------weather statistics------------------------------------------------------------------- -->
+
+    <div class="flex w-full justify-between bg-[#0198afb6] p-3 backdrop-blur-2xl rounded-xl md:w-3/5 lg:w-[35%]">
+        <!-- left -->
+        <div id="left" class="flex flex-col justify-start">
+            <!-- icon -->
+            <img src="{{ icon_url }}" alt="description icon">
+            <!-- weather -->
+            <p class="font-bold text-4xl text-white">{{weather}}</p>
+            <!-- description -->
+            <p class="text-semibold text-white capitalize">{{weather_description}}</p>
+        </div>
+
+        <!-- right -->
+        <div id="right" class="flex justify-start flex-col space-y-2 ">
+            <!-- temperature -->
+            <div class="flex w-full justify-around bg-white/30 p-1 rounded-lg items-center gap-6">
+                <ion-icon class="w-8 h-8 text-white" name="thermometer-outline"></ion-icon>
+                <div class="">
+                    <p class="font-bold text-2xl text-right text-[#ff5a00]">{{temperature}}°C</p>
+                    <p class="text-sm text-white text-right">Temperature</p>
+                </div>
+            </div>
+            <!-- Wind Speed -->
+            <div class="flex w-full justify-around bg-white/30 p-1 rounded-lg items-center gap-6">
+                <ion-icon class="w-8 h-8 text-white" name="speedometer-outline"></ion-icon>
+                <div class="">
+                    <p class="font-bold text-2xl text-right text-[#ff5a00]">{{wind_speed}} m/s</p>
+                    <p class="text-sm text-white text-right">Wind Speed</p>
+                </div>
+            </div>
+            <!-- Humidity -->
+            <div class="flex w-full justify-around bg-white/30 p-1 rounded-lg items-center gap-6">
+                <ion-icon class="w-8 h-8 text-white" name="rainy-outline"></ion-icon>
+                <div class="">
+                    <p class="font-bold text-2xl text-right text-[#ff5a00]">{{humidity}} %</p>
+                    <p class="text-sm text-white text-right">Humidity</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-------------------------------------------------------------- End of weather statistics------------------------------------------------------------------- -->
+
+
+
+    <!-- -----------------------------------------------------------weather forecast block ---------------------------------------------------------------------------- -->
+
+    {% if forecast %}
+    <div class="w-full md:w-3/5 lg:w-[35%] mt-6">
+        <h2 class="text-xl font-bold text-white text-center mb-4">5-Day Forecast</h2>
+        <div
+            class="flex flex-row flex-wrap gap-5 overflow-x-auto pb-2 scrollbar-hide sm:flex-col sm:items-center sm:overflow-visible">
+            {% for day, data in forecast.items %}
+            <div
+                class="flex-shrink-0 w-36 h-36 bg-white/20 backdrop-blur-lg text-white rounded-2xl p-3 shadow-lg flex flex-col justify-between items-center hover:scale-105 transition-transform duration-300">
+                <div class="text-sm font-semibold">{{ day }}</div>
+                <img src="https://openweathermap.org/img/wn/{{ data.icon }}@2x.png" alt="Icon" class="w-12 h-12">
+                <div class="text-center text-sm capitalize">{{ data.desc }}</div>
+                <div class="text-xl font-bold text-[#ff5a00]">{{ data.temp }}°C</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-------------------------------------------------------------- End of forecast block------------------------------------------------------------------- -->
+
+    <!-------------------------------------------------------------- text-to-speech------------------------------------------------------------------- -->
+
+
+    {% if temperature and city and weather_description %}
+    <button onclick="speakWeather()"
+        class="text-white bg-[#0198afb6] px-3 shadow-2xl bg-blue-600 px-4 py-2 mt-4 rounded-4xl shadow-lg backdrop-blur-2xl rounded-3xl cursor-pointer ease-in-out duration-500 hover:scale-[105%]">🔊
+        Speak Weather</button>
+    {% endif %}
+
+    <!-------------------------------------------------------------- End of text-to-speech------------------------------------------------------------------- -->
+
+
+    <script>
+        function speakWeather() {
+            const city = "{{ city|default:'' }}";
+            const country = "{{ country|default:'' }}";
+            const temp = "{{ temperature|default:'' }}";
+            const condition = "{{ weather_description|default:'' }}";
+            const wind = "{{ wind_speed|default:'' }}";
+            const humidity = "{{ humidity|default:'' }}";
+
+            const msg = new SpeechSynthesisUtterance(
+                `Current weather in ${city}, ${country}. ${condition}. Temperature is ${temp} degrees Celsius. Wind speed is ${wind} meters per second. Humidity is ${humidity} percent.`
+            );
+
+            window.speechSynthesis.speak(msg);
+        }
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('triggerSpeak') === 'true') {
+                localStorage.removeItem('triggerSpeak');
+                speakWeather();
+            }
+        });
+
+    </script>
+
+
+
+    <script>
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasLat = urlParams.has('lat');
+            const hasLon = urlParams.has('lon');
+            const hasCity = urlParams.has('city');
+
+            // Only auto-locate if no lat/lon and no city search is present
+            if (!hasLat && !hasLon && !hasCity) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function (position) {
+                            const lat = position.coords.latitude;
+                            const lon = position.coords.longitude;
+
+                            const currentUrl = new URL(window.location.href);
+                            currentUrl.searchParams.set("lat", lat);
+                            currentUrl.searchParams.set("lon", lon);
+                            window.location.href = currentUrl;
+                        },
+                        function (error) {
+                            console.error("Geolocation error:", error.message);
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
+
+                } else {
+                    alert("Geolocation is not supported by this browser.");
+                }
+            }
+        };
+    </script>
+
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script>
+        const micBtn = document.getElementById('mic-btn');
+        const input = document.querySelector('input[name="city"]');
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+
+            micBtn.addEventListener('click', () => {
+                recognition.start();
+            });
+
+            recognition.onresult = function (event) {
+                let transcript = event.results[0][0].transcript.toLowerCase();
+                let city = transcript;
+
+                const patterns = [
+                    /weather (in|at|for)\s+([a-z\s]+)/i,
+                    /(?:in|at|for)\s+([a-z\s]+)/i,
+                    /weather\s+([a-z\s]+)/i
+                ];
+
+                for (const pattern of patterns) {
+                    const match = transcript.match(pattern);
+                    if (match) {
+                        city = match[2] || match[1];
+                        break;
+                    }
+                }
+
+                city = city.trim();
+                input.value = city;
+
+                localStorage.setItem('triggerSpeak', 'true');
+                input.form.submit();
+            };
+
+            recognition.onerror = function (event) {
+                console.error("Speech recognition error:", event.error);
+            };
+
+        } else {
+            micBtn.disabled = true;
+            micBtn.title = "Speech recognition not supported";
+        }
+
+    </script>
+    <script>
+        async function requestMicAccess() {
+            const permissions = await navigator.permissions.query({ name: 'microphone' });
+
+            if (permissions.state === 'granted') {
+                console.log("Microphone permission already granted");
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function (stream) {
+                    console.log("Microphone access granted");
+                    stream.getTracks().forEach(track => track.stop());
+                })
+                .catch(function (err) {
+                    console.error("Microphone access denied:", err);
+                });
+        }
+
+        window.addEventListener('load', requestMicAccess);
+    </script>
+
+
+</body>
+
+</html>
